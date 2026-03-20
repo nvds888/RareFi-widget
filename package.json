@@ -19,7 +19,7 @@
     "react-dom": ">=17"
   },
   "dependencies": {
-    "algosdk": "^2.7.0",
+    "algosdk": "^3.4.0",
     "axios": "^1.6.0",
     "buffer": "^6.0.3"
   },

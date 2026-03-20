@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { formatTokenAmount, parseTokenAmount, formatMaxAmount } from '../utils/format';
-import { decodeSignAndSubmit } from '../utils/txn';
+import { decodeTxns, signAndSubmit, decodeSignAndSubmit } from '../utils/txn';
+import {
+  validateOptInTxn,
+  validateDepositTxn,
+  validateWithdrawTxn,
+  validateClaimTxn,
+  validateCloseOutTxn,
+  validateSwitchPoolTxn,
+} from '../utils/txnValidation';
 
 const EXPLORER_URL = 'https://explorer.perawallet.app';
 const INDEXER_URL = 'https://mainnet-idx.algonode.cloud';
@@ -95,7 +103,11 @@ function DepositPanel({ pools, userAddress, signTransactions, apiUrl, assetName,
     setStep('signing'); setError('');
     try {
       const res = await axios.post(`${apiUrl}/pools/${selectedPool.id}/opt-in`, { userAddress });
-      await decodeSignAndSubmit(res.data.transactions, signTransactions, apiUrl);
+      const b64Txns = res.data.transactions;
+      const txnGroup = decodeTxns(b64Txns);
+      const validation = validateOptInTxn(txnGroup, { sender: userAddress, appId: selectedPool.appId });
+      if (!validation.valid) { setError(validation.error); setStep('input'); return; }
+      await signAndSubmit(b64Txns, signTransactions, apiUrl);
       setIsOptedIn(true); setStep('input');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Opt-in failed');
@@ -112,7 +124,15 @@ function DepositPanel({ pools, userAddress, signTransactions, apiUrl, assetName,
     setStep('signing'); setError('');
     try {
       const res = await axios.post(`${apiUrl}/pools/${selectedPool.id}/deposit`, { userAddress, amount: units });
-      const id = await decodeSignAndSubmit(res.data.transactions, signTransactions, apiUrl);
+      const b64Txns = res.data.transactions;
+      const txnGroup = decodeTxns(b64Txns);
+      const validation = validateDepositTxn(txnGroup, {
+        sender: userAddress, appId: selectedPool.appId,
+        appAddress: selectedPool.appAddress, amount: units,
+        depositAssetId: selectedPool.depositAssetId,
+      });
+      if (!validation.valid) { setError(validation.error); setStep('input'); return; }
+      const id = await signAndSubmit(b64Txns, signTransactions, apiUrl);
       setTxId(id); setStep('success');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Deposit failed');
@@ -204,7 +224,11 @@ function WithdrawPanel({ pools, positions, userAddress, signTransactions, apiUrl
     setStep('signing'); setError('');
     try {
       const res = await axios.post(`${apiUrl}/pools/${selectedPool.id}/withdraw`, { userAddress, amount: units });
-      const id = await decodeSignAndSubmit(res.data.transactions, signTransactions, apiUrl);
+      const b64Txns = res.data.transactions;
+      const txnGroup = decodeTxns(b64Txns);
+      const validation = validateWithdrawTxn(txnGroup, { sender: userAddress, appId: selectedPool.appId });
+      if (!validation.valid) { setError(validation.error); setStep('input'); return; }
+      const id = await signAndSubmit(b64Txns, signTransactions, apiUrl);
       setTxId(id); setStep('success');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Withdraw failed');
@@ -287,7 +311,11 @@ function ClaimPanel({ pools, positions, userAddress, signTransactions, apiUrl, o
     setStep('signing'); setError('');
     try {
       const res = await axios.post(`${apiUrl}/pools/${selectedPool.id}/claim`, { userAddress });
-      const id = await decodeSignAndSubmit(res.data.transactions, signTransactions, apiUrl);
+      const b64Txns = res.data.transactions;
+      const txnGroup = decodeTxns(b64Txns);
+      const validation = validateClaimTxn(txnGroup, { sender: userAddress, appId: selectedPool.appId });
+      if (!validation.valid) { setError(validation.error); setStep('confirm'); return; }
+      const id = await signAndSubmit(b64Txns, signTransactions, apiUrl);
       setTxId(id); setStep('success');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Claim failed');
@@ -356,7 +384,11 @@ function SwitchPanel({ pools, positions, userAddress, signTransactions, apiUrl, 
     setStep('signing'); setError('');
     try {
       const res = await axios.post(`${apiUrl}/pools/switch-pool`, { userAddress, fromPoolId: fromPool.id, toPoolId: toPool.id, amount: units });
-      const id = await decodeSignAndSubmit(res.data.transactions, signTransactions, apiUrl);
+      const b64Txns = res.data.transactions;
+      const txnGroup = decodeTxns(b64Txns);
+      const validation = validateSwitchPoolTxn(txnGroup, { sender: userAddress, fromAppId: fromPool.appId, toAppId: toPool.appId });
+      if (!validation.valid) { setError(validation.error); setStep('select'); return; }
+      const id = await signAndSubmit(b64Txns, signTransactions, apiUrl);
       setTxId(id); setStep('success');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Switch failed');
@@ -444,7 +476,11 @@ function ExitPanel({ pools, positions, userAddress, signTransactions, apiUrl, as
     setStep('signing'); setError('');
     try {
       const res = await axios.post(`${apiUrl}/pools/${selectedPool.id}/close-out`, { userAddress });
-      const id = await decodeSignAndSubmit(res.data.transactions, signTransactions, apiUrl);
+      const b64Txns = res.data.transactions;
+      const txnGroup = decodeTxns(b64Txns);
+      const validation = validateCloseOutTxn(txnGroup, { sender: userAddress, appId: selectedPool.appId });
+      if (!validation.valid) { setError(validation.error); setStep('confirm'); return; }
+      const id = await signAndSubmit(b64Txns, signTransactions, apiUrl);
       setTxId(id); setStep('success');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Exit failed');
