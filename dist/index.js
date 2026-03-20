@@ -2390,13 +2390,12 @@ function decodeTxns(b64Txns) {
 }
 
 /**
- * Sign and submit transactions.
- * Passes encoded Uint8Arrays to signTransactions (compatible with all wallets including Lute).
+ * Sign and submit transactions — same pattern as the main RareFi app.
+ * Passes decoded Transaction objects to signTransactions.
  */
 async function signAndSubmit(b64Txns, signTransactions, apiUrl) {
-  // Pass encoded bytes — wallets like Lute expect Uint8Array, not Transaction objects
-  const encodedTxns = b64Txns.map(b64 => buffer.Buffer.from(b64, 'base64'));
-  const signedTxns = await signTransactions(encodedTxns);
+  const txnGroup = decodeTxns(b64Txns);
+  const signedTxns = await signTransactions(txnGroup);
   const signedTxnsBase64 = signedTxns.map(t => buffer.Buffer.from(t).toString('base64'));
   const response = await axios.post(`${apiUrl}/pools/submit`, {
     signedTxns: signedTxnsBase64
