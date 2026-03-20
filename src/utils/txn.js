@@ -1,5 +1,6 @@
 import algosdk from 'algosdk';
 import axios from 'axios';
+import { Buffer } from 'buffer';
 
 /**
  * Decode base64-encoded unsigned transactions from the RareFi backend,

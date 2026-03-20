@@ -67,7 +67,7 @@ const CSS = `
 
 /* Panel */
 .rfw-panel { display: flex; flex-direction: column; }
-.rfw-back { background: none; border: none; font-size: 12px; color: #9ca3af; cursor: pointer; padding: 0; margin-bottom: 14px; font-family: inherit; text-align: left; transition: color 0.15s; display: inline-flex; align-items: center; gap: 3px; }
+.rfw-back { background: #fff; border: none; font-size: 12px; color: #9ca3af; cursor: pointer; padding: 6px 0; margin-bottom: 14px; font-family: inherit; text-align: left; transition: color 0.15s; display: inline-flex; align-items: center; gap: 3px; position: sticky; top: 0; z-index: 10; }
 .rfw-back:hover { color: #111; }
 .rfw-panel-title { font-size: 15px; font-weight: 700; color: #111; margin: 0 0 16px; }
 .rfw-label { display: block; font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px; }

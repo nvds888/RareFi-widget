@@ -340,17 +340,22 @@ function SwitchPanel({ pools, positions, userAddress, signTransactions, apiUrl, 
   const poolsWithDeposits = pools.filter(p => (positions[p.id]?.depositedAmount || 0) > 0);
   const [fromPool, setFromPool] = useState(poolsWithDeposits[0] || null);
   const [toPool, setToPool] = useState(null);
+  const [amount, setAmount] = useState('');
   const [step, setStep] = useState('select');
   const [txId, setTxId] = useState('');
   const [error, setError] = useState('');
 
   const availableTargets = pools.filter(p => p.id !== fromPool?.id);
+  const deposited = fromPool ? (positions[fromPool.id]?.depositedAmount || 0) : 0;
 
   const handleSwitch = async () => {
     if (!fromPool || !toPool) { setError('Select source and target vault'); return; }
+    const units = parseTokenAmount(amount);
+    if (units <= 0) { setError('Enter a valid amount'); return; }
+    if (units > deposited) { setError('Exceeds deposited balance'); return; }
     setStep('signing'); setError('');
     try {
-      const res = await axios.post(`${apiUrl}/pools/switch-pool`, { userAddress, fromPoolId: fromPool.id, toPoolId: toPool.id });
+      const res = await axios.post(`${apiUrl}/pools/switch-pool`, { userAddress, fromPoolId: fromPool.id, toPoolId: toPool.id, amount: units });
       const id = await decodeSignAndSubmit(res.data.transactions, signTransactions, apiUrl);
       setTxId(id); setStep('success');
     } catch (err) {
@@ -403,9 +408,22 @@ function SwitchPanel({ pools, positions, userAddress, signTransactions, apiUrl, 
           );
         })}
       </div>
+
+      <div className="rfw-amount-block">
+        <div className="rfw-amount-top">
+          <label className="rfw-label" style={{ margin: 0 }}>Amount to switch</label>
+          <span className="rfw-balance-hint">Deposited: <strong>{formatTokenAmount(deposited)} {assetName}</strong></span>
+        </div>
+        <div className="rfw-input-row">
+          <input className="rfw-input" type="number" placeholder="0.00"
+            value={amount} onChange={e => setAmount(e.target.value)} step="0.01" min="0" />
+          <button type="button" className="rfw-max-btn" onClick={() => setAmount(formatMaxAmount(deposited))}>MAX</button>
+        </div>
+      </div>
+
       {error && <p className="rfw-error">{error}</p>}
       <button className="rfw-btn rfw-btn-primary rfw-btn-full" onClick={handleSwitch}
-        disabled={!fromPool || !toPool} style={{ marginTop: 8 }}>Switch Vault</button>
+        disabled={!fromPool || !toPool || !amount || parseFloat(amount) <= 0} style={{ marginTop: 8 }}>Switch Vault</button>
     </div>
   );
 }

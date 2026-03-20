@@ -20,11 +20,19 @@
   },
   "dependencies": {
     "algosdk": "^2.7.0",
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "buffer": "^6.0.3"
   },
   "devDependencies": {
     "microbundle": "^0.15.1"
   },
-  "keywords": ["algorand", "rarefi", "yield", "vault", "widget", "defi"],
+  "keywords": [
+    "algorand",
+    "rarefi",
+    "yield",
+    "vault",
+    "widget",
+    "defi"
+  ],
   "license": "MIT"
 }

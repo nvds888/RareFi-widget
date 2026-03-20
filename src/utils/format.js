@@ -1,9 +1,12 @@
-export function formatTokenAmount(amount, decimals = 6) {
-  if (!amount && amount !== 0) return '0.00';
-  const val = amount / Math.pow(10, decimals);
-  if (val >= 1_000_000) return (val / 1_000_000).toFixed(2) + 'M';
-  if (val >= 1_000) return (val / 1_000).toFixed(2) + 'K';
-  return val.toFixed(2);
+export function formatTokenAmount(rawAmount, decimals = 6) {
+  if (rawAmount === undefined || rawAmount === null || rawAmount === 0) return '0';
+  const value = rawAmount / Math.pow(10, decimals);
+  if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + 'M';
+  if (value >= 1_000) return (value / 1_000).toFixed(2) + 'K';
+  if (value >= 1) return value.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  // 2 significant figures for small values: 0.001234 → "0.0012"
+  const sigDecimals = Math.max(2, Math.ceil(-Math.log10(value)) + 1);
+  return value.toFixed(Math.min(sigDecimals, 8)).replace(/0+$/, '').replace(/\.$/, '');
 }
 
 export function parseTokenAmount(value, decimals = 6) {
