@@ -2,11 +2,18 @@
   "name": "@rarefi/widget",
   "version": "0.1.0",
   "description": "RareFi vault widget — embed yield vaults in any React app",
-  "main": "src/index.js",
-  "module": "src/index.js",
+  "source": "src/index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "exports": "./dist/index.js",
   "files": [
+    "dist",
     "src"
   ],
+  "scripts": {
+    "build": "microbundle --jsx React.createElement --jsxFragment React.Fragment --no-compress --external react,react-dom,algosdk,axios",
+    "dev": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment --external react,react-dom,algosdk,axios"
+  },
   "peerDependencies": {
     "react": ">=17",
     "react-dom": ">=17"
@@ -14,6 +21,9 @@
   "dependencies": {
     "algosdk": "^2.7.0",
     "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "microbundle": "^0.15.1"
   },
   "keywords": ["algorand", "rarefi", "yield", "vault", "widget", "defi"],
   "license": "MIT"

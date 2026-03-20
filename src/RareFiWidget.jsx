@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import WidgetModal from './components/WidgetModal';
 import { useWidgetData } from './hooks/useWidgetData';
-import './styles/widget.css';
+import injectStyles from './styles/injectStyles';
 
 /**
  * RareFiWidget
@@ -29,6 +29,7 @@ export default function RareFiWidget({
   theme = 'light',
   renderTrigger,
 }) {
+  injectStyles();
   const [open, setOpen] = useState(false);
 
   const { pools, positions, transactions, loading, positionsLoading, refresh } =
