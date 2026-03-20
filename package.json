@@ -1,0 +1,20 @@
+{
+  "name": "@rarefi/widget",
+  "version": "0.1.0",
+  "description": "RareFi vault widget — embed yield vaults in any React app",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "react": ">=17",
+    "react-dom": ">=17"
+  },
+  "dependencies": {
+    "algosdk": "^2.7.0",
+    "axios": "^1.6.0"
+  },
+  "keywords": ["algorand", "rarefi", "yield", "vault", "widget", "defi"],
+  "license": "MIT"
+}
